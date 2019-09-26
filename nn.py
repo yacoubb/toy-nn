@@ -16,6 +16,12 @@ class NeuralNetwork(object):
     def activation(self, z):
         return 1.0 / (1.0 + np.exp(-z))
 
+    def activation_derivative(self, z):
+        return self.activation(z) * (1 - self.activation(z))
+
+    def cost_derivative(self, y, a):
+        return y - a
+
 
     def predict(self, z):
         _, a_s = self.feedforward(z)
@@ -25,6 +31,7 @@ class NeuralNetwork(object):
         a = np.copy(x)
         z_s = []
         a_s = [a]
+        # note how the activations are shifted along one
         for i in range(len(self.weights)):
             z = np.dot(self.weights[i], a) + self.biases[i]
             z_s.append(z)
@@ -32,4 +39,45 @@ class NeuralNetwork(object):
             a_s.append(a)
         return (z_s, a_s)
 
-    
+    def backprop(self, x, y):
+        (z_s, a_s) = self.feedforward(x)
+        nabla_w_delta = []  # dC/dW
+        nabla_b_delta = []  # dC/dB
+        # dC/dW is the partial derivatives of the cost relative to all of the parameters in the network
+        # so each element will be a matrix with the same dimensions as weight / bias matrix the element corresponds to
+        deltas = [
+            None for i in range(len(self.weights))
+        ]  # the errors at each layer delta^l
+
+        # http://neuralnetworksanddeeplearning.com/chap2.html
+        # BP1a:
+        deltas[-1] = self.cost_derivative(a_s[-1], y) * self.activation_derivative(
+            z_s[-1]
+        )
+
+        # BP2:
+        for i in reversed(range(len(deltas) - 1)):
+            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activation_derivative(z_s[i])
+
+        # BP3 and BP4:
+        nabla_b_delta = [d.dot(np.ones((1, 1))) for d in deltas]
+        # remember here that activation indices are shifted along one (look at feedforward method) so a_s[i] are activations in layer i-1
+        nabla_w_delta = [d.dot(a_s[i].T) for i, d in enumerate(deltas)]
+
+        return nabla_w_delta, nabla_b_delta
+
+    def train(self, x_train, y_train, epochs, lr=0.01):
+        for e in range(epochs):
+            nabla_b = [0 for i in range(len(self.weights))]
+            nabla_w = [0 for i in range(len(self.weights))]
+            for i in range(len(y_train)):
+                x = x_train[i]
+                y = y_train[i]
+
+                nabla_w_delta, nabla_b_delta = self.backprop(x, y)
+
+                nabla_b = [b + db for b, db in zip(nabla_b, nabla_b_delta)]
+                nabla_w = [w + dw for w, dw in zip(nabla_w, nabla_w_delta)]
+
+            self.weights = [w + lr * nw for w, nw in zip(self.weights, nabla_w)]
+            self.biases = [w + lr * nb for w, nb in zip(self.biases, nabla_b)]
