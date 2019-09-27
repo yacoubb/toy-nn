@@ -2,7 +2,7 @@ import numpy as np
 
 
 class NeuralNetwork(object):
-    def __init__(self, layers, activations_list):
+    def __init__(self, layers):
         self.layers = layers
         self.weights = []
         self.biases = []
@@ -24,11 +24,12 @@ class NeuralNetwork(object):
 
 
     def predict(self, z):
+        a = np.copy(z)
         _, a_s = self.feedforward(z)
         return a_s[-1]
 
-    def feedforward(self, x):
-        a = np.copy(x)
+    def feedforward(self, z):
+        a = np.copy(z)
         z_s = []
         a_s = [a]
         # note how the activations are shifted along one
@@ -51,7 +52,7 @@ class NeuralNetwork(object):
 
         # http://neuralnetworksanddeeplearning.com/chap2.html
         # BP1a:
-        deltas[-1] = self.cost_derivative(a_s[-1], y) * self.activation_derivative(
+        deltas[-1] = self.cost_derivative(y, a_s[-1]) * self.activation_derivative(
             z_s[-1]
         )
 
