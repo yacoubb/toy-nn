@@ -3,7 +3,7 @@ import losses
 import activations
 
 class NeuralNetwork(object):
-    def __init__(self, layers):
+    def __init__(self, layers, activation_name):
         self.layers = layers
         self.weights = []
         self.biases = []
@@ -14,7 +14,7 @@ class NeuralNetwork(object):
             )  # note the weird w_jk notation here
             self.biases.append(np.random.randn(layers[i + 1], 1))
 
-        self.activation = activations.Sigmoid
+        self.activation = activations.str_to_activation(activation_name)
         self.cost = losses.MeanSquaredError
 
 
@@ -77,3 +77,48 @@ class NeuralNetwork(object):
 
             self.weights = [w + lr * nw for w, nw in zip(self.weights, nabla_w)]
             self.biases = [w + lr * nb for w, nb in zip(self.biases, nabla_b)]
+
+    def save(self, path):
+        with open(path, "w+") as save_file:
+            import json
+
+            save_obj = {
+                "layers": self.layers,
+                "activation": self.activation.to_string(),
+                "weights": [],
+                "biases": [],
+            }
+            for l in range(len(self.weights)):
+                save_obj["weights"].append(str(list(self.weights[l].flatten())))
+                save_obj["biases"].append(str(list(self.biases[l].flatten())))
+
+            save_file.write(json.dumps(save_obj, indent=4))
+
+    @staticmethod
+    def load(path):
+        with open(path, "r") as network_file:
+            import json
+
+            json_object = json.load(network_file)
+            layers = json_object["layers"]
+            activation_name = json_object['activation']
+
+            network = NeuralNetwork(layers, activation_name)
+
+            for l in range(len(network.weights)):
+                loaded_weights = json_object["weights"][l][1:-1].split(", ")
+                loaded_weights = list(map(lambda x: float(x), loaded_weights))
+                loaded_weights = np.reshape(
+                    np.array(loaded_weights, np.float32), network.weights[l].shape
+                )
+
+                loaded_biases = json_object["biases"][l][1:-1].split(", ")
+                loaded_biases = list(map(lambda x: float(x), loaded_biases))
+                loaded_biases = np.reshape(
+                    np.array(loaded_biases, np.float32), network.biases[l].shape
+                )
+
+                network.weights[l] = loaded_weights
+                network.biases[l] = loaded_biases
+
+        return network
