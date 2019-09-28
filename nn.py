@@ -1,23 +1,6 @@
 import numpy as np
-
-
-class Sigmoid(object):
-    @staticmethod
-    def fn(z):
-        return 1.0 / (1.0 + np.exp(-z))
-
-    @staticmethod
-    def derivative(z):
-        return Sigmoid.fn(z) * (1 - Sigmoid.fn(z))
-
-class MeanSquaredError(object):
-    @staticmethod
-    def fn(y, a):
-        return 0.5 * (y - a) ** 2
-
-    @staticmethod
-    def derivative(y, a):
-        return y - a
+import losses
+import activations
 
 class NeuralNetwork(object):
     def __init__(self, layers):
@@ -31,8 +14,8 @@ class NeuralNetwork(object):
             )  # note the weird w_jk notation here
             self.biases.append(np.random.randn(layers[i + 1], 1))
 
-        self.activation = Sigmoid
-        self.cost = MeanSquaredError
+        self.activation = activations.Sigmoid
+        self.cost = losses.MeanSquaredError
 
 
     def predict(self, z):
