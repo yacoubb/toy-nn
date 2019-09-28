@@ -1,6 +1,24 @@
 import numpy as np
 
 
+class Sigmoid(object):
+    @staticmethod
+    def fn(z):
+        return 1.0 / (1.0 + np.exp(-z))
+
+    @staticmethod
+    def derivative(z):
+        return Sigmoid.fn(z) * (1 - Sigmoid.fn(z))
+
+class MeanSquaredError(object):
+    @staticmethod
+    def fn(a, y):
+        pass
+
+    @staticmethod
+    def derivative(a, y):
+        return y - a
+
 class NeuralNetwork(object):
     def __init__(self, layers):
         self.layers = layers
@@ -13,14 +31,8 @@ class NeuralNetwork(object):
             )  # note the weird w_jk notation here
             self.biases.append(np.random.randn(layers[i + 1], 1))
 
-    def activation(self, z):
-        return 1.0 / (1.0 + np.exp(-z))
-
-    def activation_derivative(self, z):
-        return self.activation(z) * (1 - self.activation(z))
-
-    def cost_derivative(self, y, a):
-        return y - a
+        self.activation = Sigmoid
+        self.cost = MeanSquaredError
 
 
     def predict(self, z):
@@ -36,7 +48,7 @@ class NeuralNetwork(object):
         for i in range(len(self.weights)):
             z = np.dot(self.weights[i], a) + self.biases[i]
             z_s.append(z)
-            a = self.activation(np.copy(z))
+            a = self.activation.fn(np.copy(z))
             a_s.append(a)
         return (z_s, a_s)
 
@@ -52,13 +64,13 @@ class NeuralNetwork(object):
 
         # http://neuralnetworksanddeeplearning.com/chap2.html
         # BP1a:
-        deltas[-1] = self.cost_derivative(y, a_s[-1]) * self.activation_derivative(
+        deltas[-1] = self.cost.derivative(y, a_s[-1]) * self.activation.derivative(
             z_s[-1]
         )
 
         # BP2:
         for i in reversed(range(len(deltas) - 1)):
-            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activation_derivative(z_s[i])
+            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activation.derivative(z_s[i])
 
         # BP3 and BP4:
         nabla_b_delta = [d.dot(np.ones((1, 1))) for d in deltas]
