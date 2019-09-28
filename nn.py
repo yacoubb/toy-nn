@@ -12,11 +12,11 @@ class Sigmoid(object):
 
 class MeanSquaredError(object):
     @staticmethod
-    def fn(a, y):
-        pass
+    def fn(y, a):
+        return 0.5 * (y - a) ** 2
 
     @staticmethod
-    def derivative(a, y):
+    def derivative(y, a):
         return y - a
 
 class NeuralNetwork(object):

@@ -14,11 +14,7 @@ y_train = list(map(lambda x: np.reshape(x, (1, 1)), y_train))
 print(x_train[0].shape)
 print(y_train[0].shape)
 
-for e in range(100):
-    network.train(x_train, y_train, 100, 0.1)
-    # print('=' * 20)
-    # for elem in x_train:
-    #     print(elem, network.predict(elem))
+network.train(x_train, y_train, 10000, 0.1)
 
 size = 32.0
 img = np.zeros((int(size), int(size)))
