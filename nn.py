@@ -3,8 +3,10 @@ import losses
 import activations
 
 class NeuralNetwork(object):
-    def __init__(self, layers, activation_name):
+    def __init__(self, layers, activations_list):
+        # activations_list is a list of strings
         self.layers = layers
+        assert len(layers) == len(activations_list) + 1, f'Layers and activations mismatch! {len(layers)} != {len(activations_list)} + 1'
         self.weights = []
         self.biases = []
 
@@ -14,7 +16,7 @@ class NeuralNetwork(object):
             )  # note the weird w_jk notation here
             self.biases.append(np.random.randn(layers[i + 1], 1))
 
-        self.activation = activations.str_to_activation(activation_name)
+        self.activations = list(map(lambda x : activations.str_to_activation(x), activations_list))
         self.cost = losses.MeanSquaredError
 
 
@@ -31,7 +33,7 @@ class NeuralNetwork(object):
         for i in range(len(self.weights)):
             z = np.dot(self.weights[i], a) + self.biases[i]
             z_s.append(z)
-            a = self.activation.fn(np.copy(z))
+            a = self.activations[i].fn(np.copy(z))
             a_s.append(a)
         return (z_s, a_s)
 
@@ -47,13 +49,13 @@ class NeuralNetwork(object):
 
         # http://neuralnetworksanddeeplearning.com/chap2.html
         # BP1a:
-        deltas[-1] = self.cost.derivative(y, a_s[-1]) * self.activation.derivative(
+        deltas[-1] = self.cost.derivative(y, a_s[-1]) * self.activations[-1].derivative(
             z_s[-1]
         )
 
         # BP2:
         for i in reversed(range(len(deltas) - 1)):
-            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activation.derivative(z_s[i])
+            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activations[i].derivative(z_s[i])
 
         # BP3 and BP4:
         nabla_b_delta = [d.dot(np.ones((1, 1))) for d in deltas]
@@ -84,7 +86,7 @@ class NeuralNetwork(object):
 
             save_obj = {
                 "layers": self.layers,
-                "activation": self.activation.to_string(),
+                "activations": list(map(lambda x : x.to_string(), self.activations)),
                 "weights": [],
                 "biases": [],
             }
@@ -101,9 +103,9 @@ class NeuralNetwork(object):
 
             json_object = json.load(network_file)
             layers = json_object["layers"]
-            activation_name = json_object['activation']
+            activations_list = json_object['activations']
 
-            network = NeuralNetwork(layers, activation_name)
+            network = NeuralNetwork(layers, activations_list)
 
             for l in range(len(network.weights)):
                 loaded_weights = json_object["weights"][l][1:-1].split(", ")
