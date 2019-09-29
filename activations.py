@@ -50,5 +50,6 @@ for x in activations:
 
 
 def str_to_activation(label):
+    label = label.capitalize()
     assert label in activation_dict, f"{label} is not a valid activation!"
     return activation_dict[label]
