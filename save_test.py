@@ -6,7 +6,7 @@ A test of the effectiveness of the NeuralNetwork save and load functions.
 """
 
 np.random.seed(4)
-network = NeuralNetwork([5,5,2], 'Sigmoid')
+network = NeuralNetwork([5,5,2], ['Sigmoid', 'Sigmoid'])
 
 network.save('./network.json')
 
