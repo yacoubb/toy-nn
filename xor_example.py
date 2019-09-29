@@ -1,5 +1,5 @@
 import numpy as np
-from nn import NeuralNetwork
+from toy_nn.nn import NeuralNetwork
 import matplotlib.pyplot as plt
 
 np.random.seed(4)

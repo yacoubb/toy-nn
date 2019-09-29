@@ -1,15 +1,19 @@
 import numpy as np
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import losses
 import activations
+
 
 class NeuralNetwork(object):
     def __init__(self, layers, activations_list):
         # activations_list is a list of strings
         self.layers = layers
-        assert len(layers) == len(activations_list) + 1, f'Layers and activations mismatch! {len(layers)} != {len(activations_list)} + 1'
+        assert (
+            len(layers) == len(activations_list) + 1
+        ), f"Layers and activations mismatch! {len(layers)} != {len(activations_list)} + 1"
         self.weights = []
         self.biases = []
 
@@ -19,9 +23,10 @@ class NeuralNetwork(object):
             )  # note the weird w_jk notation here
             self.biases.append(np.random.randn(layers[i + 1], 1))
 
-        self.activations = list(map(lambda x : activations.str_to_activation(x), activations_list))
+        self.activations = list(
+            map(lambda x: activations.str_to_activation(x), activations_list)
+        )
         self.cost = losses.MeanSquaredError
-
 
     def predict(self, z):
         a = np.copy(z)
@@ -58,7 +63,9 @@ class NeuralNetwork(object):
 
         # BP2:
         for i in reversed(range(len(deltas) - 1)):
-            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activations[i].derivative(z_s[i])
+            deltas[i] = self.weights[i + 1].T.dot(deltas[i + 1]) * self.activations[
+                i
+            ].derivative(z_s[i])
 
         # BP3 and BP4:
         nabla_b_delta = [d.dot(np.ones((1, 1))) for d in deltas]
@@ -89,7 +96,7 @@ class NeuralNetwork(object):
 
             save_obj = {
                 "layers": self.layers,
-                "activations": list(map(lambda x : x.to_string(), self.activations)),
+                "activations": list(map(lambda x: x.to_string(), self.activations)),
                 "weights": [],
                 "biases": [],
             }
@@ -106,7 +113,7 @@ class NeuralNetwork(object):
 
             json_object = json.load(network_file)
             layers = json_object["layers"]
-            activations_list = json_object['activations']
+            activations_list = json_object["activations"]
 
             network = NeuralNetwork(layers, activations_list)
 
@@ -132,7 +139,9 @@ class NeuralNetwork(object):
         return f"<nn {self.layers}, {sum(map(lambda x : len(x), self.weights)) + sum(map(lambda x : len(x), self.biases))} trainable params>"
 
     def copy(self):
-        copy = NeuralNetwork(self.layers, self.activations)
+        copy = NeuralNetwork(
+            self.layers, list(map(lambda x: x.to_string(), self.activations))
+        )
         for l in range(len(self.weights)):
             copy.weights[l] = np.copy(self.weights[l])
             copy.biases[l] = np.copy(self.biases[l])
