@@ -124,3 +124,13 @@ class NeuralNetwork(object):
                 network.biases[l] = loaded_biases
 
         return network
+
+    def __repr__(self):
+        return f"<nn {self.layers}, {sum(map(lambda x : len(x), self.weights)) + sum(map(lambda x : len(x), self.biases))} trainable params>"
+
+    def copy(self):
+        copy = NeuralNetwork(self.layers, self.activations)
+        for l in range(len(self.weights)):
+            copy.weights[l] = np.copy(self.weights[l])
+            copy.biases[l] = np.copy(self.biases[l])
+        return copy
