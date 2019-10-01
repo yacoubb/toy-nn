@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class MeanSquaredError(object):
     @staticmethod
     def fn(y, a):

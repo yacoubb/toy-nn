@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 np.random.seed(4)
 
-network = NeuralNetwork([2,2,1], ['Sigmoid', 'Sigmoid'])
+network = NeuralNetwork([2, 2, 1], ["Sigmoid", "Sigmoid"])
 
 x_train = [np.array([0, 0]), np.array([0, 1]), np.array([1, 0]), np.array([1, 1])]
 x_train = list(map(lambda x: np.reshape(x, (2, 1)), x_train))

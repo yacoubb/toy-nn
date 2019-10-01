@@ -14,6 +14,11 @@ def test_copy():
     network = NeuralNetwork([5, 5, 2], ["Sigmoid", "Sigmoid"])
 
     copy = network.copy()
+    assert len(network.layers) == len(copy.layers)
+    assert len(network.activations) == len(copy.activations)
+    for l in range(len(network.weights)):
+        assert np.array_equal(network.weights[l], copy.weights[l])
+        assert np.array_equal(network.biases[l], copy.biases[l])
 
 
 def test_save():
@@ -30,11 +35,7 @@ def test_save():
 
     # since the weights and biases are saved in text form, some precision is lost.
     # need to do further testing to find out if this is going to be an issue
-    print(
-        f"average error in first layer loaded weights: {np.mean(network.weights[0] - loaded_network.weights[0])}"
-    )
-    print(
-        f"average error in first layer loaded biases: {np.mean(network.biases[0] - loaded_network.biases[0])}"
-    )
+    print(f"average error in first layer loaded weights: {np.mean(network.weights[0] - loaded_network.weights[0])}")
+    print(f"average error in first layer loaded biases: {np.mean(network.biases[0] - loaded_network.biases[0])}")
 
     os.remove("./network.json")

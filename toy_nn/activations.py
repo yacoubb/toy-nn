@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Sigmoid(object):
     @staticmethod
     def fn(z):
@@ -12,6 +13,7 @@ class Sigmoid(object):
     @staticmethod
     def to_string():
         return __class__.__name__
+
 
 class Relu(object):
     @staticmethod
@@ -29,6 +31,7 @@ class Relu(object):
     def to_string():
         return __class__.__name__
 
+
 class Linear(object):
     @staticmethod
     def fn(z):
@@ -37,7 +40,7 @@ class Linear(object):
     @staticmethod
     def derivative(z):
         return np.ones(z.shape)
-    
+
     @staticmethod
     def to_string():
         return __class__.__name__
